@@ -50,7 +50,7 @@ jobs:
         fi
 
     - name: Update dropdowns and versions pages
-      run: python scripts/update-dropdown.py ${{ github.event.repository.name }}
+      run: python ../scripts/update-dropdown.py ${{ github.event.repository.name }}
 
     - name: No Jekyll
       run: touch _site/.nojekyll
