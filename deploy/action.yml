@@ -39,7 +39,7 @@ runs:
         fi
 
     - name: Update dropdowns and versions pages
-      run: python .github/scripts/update-dropdown.py ${{ github.event.repository.name }}
+      run: python update-dropdown.py ${{ github.event.repository.name }}
 
     - name: No Jekyll
       run: touch _site/.nojekyll
