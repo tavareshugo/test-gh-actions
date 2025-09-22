@@ -1,0 +1,66 @@
+# File: actions/quarto-archive-action/action.yml
+name: "Quarto Book Archive Release"
+description: "Archive a tagged Quarto book version and deploy to gh-pages"
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout tagged commit
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Extract tag name
+      id: tag
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+        echo "Detected tag: $TAG_NAME"
+
+    - name: Setup Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+
+    - name: Optional pre-render commands
+      if: ${{ inputs.pre_render != '' }}
+      run: ${{ inputs.pre_render }}
+
+    - name: Render tagged version
+      run: quarto render
+
+    - name: Optional post-render commands
+      if: ${{ inputs.post_render != '' }}
+      run: ${{ inputs.post_render }}
+
+    - name: Prepare archive directory
+      run: |
+        mv _site ${{ steps.tag.outputs.tag_name }}
+        echo "Archive directory created: ${{ steps.tag.outputs.tag_name }}"
+
+    - name: Checkout gh-pages branch
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: _site
+
+    - name: Setup archive structure
+      run: |
+        mkdir -p _site/archive
+        cp -r ${{ steps.tag.outputs.tag_name }} _site/archive/
+        echo "Archive contents:"
+        ls -la _site/archive/
+
+    - name: Publish to gh-pages
+      uses: JamesIves/github-pages-deploy-action@4.1.0
+      with:
+        branch: gh-pages
+        folder: _site
+        single-commit: true
+
+inputs:
+  pre_render:
+    description: "Optional commands to run before rendering"
+    required: false
+    default: ""
+  post_render:
+    description: "Optional commands to run after rendering"
+    required: false
+    default: ""

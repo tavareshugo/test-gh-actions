@@ -1,20 +1,9 @@
-name: Quarto book deployment
-
-on:
-  workflow_call:
-    inputs:
-      pre_render:
-        required: false
-        type: string
-      post_render:
-        required: false
-        type: string
-
-jobs:
-  deploy-main:
-    runs-on: ubuntu-latest
-
-    steps:
+# File: actions/quarto-deploy-action/action.yml
+name: "Quarto Book Deployment"
+description: "Render the main branch, merge in existing archives, update dropdowns, and deploy to gh-pages"
+runs:
+  using: "composite"
+  steps:
     - name: Checkout main branch
       uses: actions/checkout@v4
       with:
@@ -50,7 +39,7 @@ jobs:
         fi
 
     - name: Update dropdowns and versions pages
-      run: python ../scripts/update-dropdown.py ${{ github.event.repository.name }}
+      run: python .github/scripts/update-dropdown.py ${{ github.event.repository.name }}
 
     - name: No Jekyll
       run: touch _site/.nojekyll
@@ -61,3 +50,13 @@ jobs:
         branch: gh-pages
         folder: _site
         single-commit: true
+
+inputs:
+  pre_render:
+    description: "Optional commands to run before rendering"
+    required: false
+    default: ""
+  post_render:
+    description: "Optional commands to run after rendering"
+    required: false
+    default: ""
