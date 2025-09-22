@@ -33,8 +33,6 @@ runs:
 
     - name: Copy archive to _site
       run: |
-        echo "Contents of gh-pages-archive:"
-        ls -la gh-pages-archive
         if [ -d "gh-pages-archive/archive" ]; then
           cp -r gh-pages-archive/archive _site/
           echo "Copied existing archive to _site"
@@ -51,12 +49,12 @@ runs:
       run: touch _site/.nojekyll
       shell: bash
 
-    - name: Deploy to gh-pages
-      uses: JamesIves/github-pages-deploy-action@4.1.0
-      with:
-        branch: gh-pages
-        folder: _site
-        single-commit: true
+    # - name: Deploy to gh-pages
+    #   uses: JamesIves/github-pages-deploy-action@4.1.0
+    #   with:
+    #     branch: gh-pages
+    #     folder: _site
+    #     single-commit: true
 
 inputs:
   pre_render:
