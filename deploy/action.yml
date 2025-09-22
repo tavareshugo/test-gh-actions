@@ -1,0 +1,63 @@
+name: Quarto book deployment
+
+on:
+  workflow_call:
+    inputs:
+      pre_render:
+        required: false
+        type: string
+      post_render:
+        required: false
+        type: string
+
+jobs:
+  deploy-main:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Setup Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+
+    - name: Optional pre-render commands
+      if: ${{ inputs.pre_render != '' }}
+      run: ${{ inputs.pre_render }}
+
+    - name: Render main branch
+      run: quarto render
+
+    - name: Checkout existing archive from gh-pages
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: gh-pages-archive
+        sparse-checkout: |
+          archive
+        sparse-checkout-cone-mode: false
+      continue-on-error: true
+
+    - name: Copy archive to _site
+      run: |
+        if [ -d "gh-pages-archive/archive" ]; then
+          cp -r gh-pages-archive/archive _site/
+          echo "Copied existing archive to _site"
+        else
+          mkdir -p _site/archive
+        fi
+
+    - name: Update dropdowns and versions pages
+      run: python ../scripts/update-dropdown.py ${{ github.event.repository.name }}
+
+    - name: No Jekyll
+      run: touch _site/.nojekyll
+
+    - name: Deploy to gh-pages
+      uses: JamesIves/github-pages-deploy-action@4.1.0
+      with:
+        branch: gh-pages
+        folder: _site
+        single-commit: true
