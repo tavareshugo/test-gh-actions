@@ -15,9 +15,11 @@ runs:
     - name: Optional pre-render commands
       if: ${{ inputs.pre_render != '' }}
       run: ${{ inputs.pre_render }}
+      shell: bash
 
     - name: Render main branch
       run: quarto render
+      shell: bash
 
     - name: Checkout existing archive from gh-pages
       uses: actions/checkout@v4
@@ -37,12 +39,15 @@ runs:
         else
           mkdir -p _site/archive
         fi
+      shell: bash
 
     - name: Update dropdowns and versions pages
       run: python update-dropdown.py ${{ github.event.repository.name }}
+      shell: bash
 
     - name: No Jekyll
       run: touch _site/.nojekyll
+      shell: bash
 
     - name: Deploy to gh-pages
       uses: JamesIves/github-pages-deploy-action@4.1.0

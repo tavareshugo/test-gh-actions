@@ -15,6 +15,7 @@ runs:
         TAG_NAME=${GITHUB_REF#refs/tags/}
         echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
         echo "Detected tag: $TAG_NAME"
+      shell: bash
 
     - name: Setup Quarto
       uses: quarto-dev/quarto-actions/setup@v2
@@ -22,18 +23,22 @@ runs:
     - name: Optional pre-render commands
       if: ${{ inputs.pre_render != '' }}
       run: ${{ inputs.pre_render }}
+      shell: bash
 
     - name: Render tagged version
       run: quarto render
+      shell: bash
 
     - name: Optional post-render commands
       if: ${{ inputs.post_render != '' }}
       run: ${{ inputs.post_render }}
+      shell: bash
 
     - name: Prepare archive directory
       run: |
         mv _site ${{ steps.tag.outputs.tag_name }}
         echo "Archive directory created: ${{ steps.tag.outputs.tag_name }}"
+      shell: bash
 
     - name: Checkout gh-pages branch
       uses: actions/checkout@v4
@@ -47,6 +52,7 @@ runs:
         cp -r ${{ steps.tag.outputs.tag_name }} _site/archive/
         echo "Archive contents:"
         ls -la _site/archive/
+      shell: bash
 
     - name: Publish to gh-pages
       uses: JamesIves/github-pages-deploy-action@4.1.0
