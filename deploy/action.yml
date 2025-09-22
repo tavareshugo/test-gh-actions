@@ -33,6 +33,8 @@ runs:
 
     - name: Copy archive to _site
       run: |
+        echo "Contents of gh-pages-archive:"
+        ls -la gh-pages-archive
         if [ -d "gh-pages-archive/archive" ]; then
           cp -r gh-pages-archive/archive _site/
           echo "Copied existing archive to _site"
