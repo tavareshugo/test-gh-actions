@@ -42,7 +42,7 @@ runs:
       shell: bash
 
     - name: Update dropdowns and versions pages
-      run: python update-dropdown.py ${{ github.event.repository.name }}
+      run: python ${GITHUB_ACTION_PATH}/update-dropdown.py ${{ github.event.repository.name }}
       shell: bash
 
     - name: No Jekyll
