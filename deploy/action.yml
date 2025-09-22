@@ -9,9 +9,6 @@ on:
       post_render:
         required: false
         type: string
-  push:
-    branches:
-      - main
 
 jobs:
   deploy-main:

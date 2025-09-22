@@ -1,9 +1,6 @@
 name: Quarto book archive release
 
 on:
-  push:
-    tags:
-      - '20[2-9][0-9].[0-1][0-9].[0-3][0-9]'  # YYYY.MM.DD format
   workflow_call:
     inputs:
       pre_render:
