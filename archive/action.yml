@@ -60,6 +60,7 @@ runs:
         branch: gh-pages
         folder: _site
         single-commit: true
+        token: ${{ secrets.GITHUB_TOKEN }}
 
 inputs:
   pre_render:
