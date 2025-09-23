@@ -39,12 +39,6 @@ runs:
         else
           mkdir -p _site/archive
         fi
-        echo "Current directory"
-        pwd
-        echo "Contents of current directory:"
-        ls -la
-        echo "Contents of _site directory:"
-        ls -la _site
       shell: bash
 
     - name: Update dropdowns and versions pages

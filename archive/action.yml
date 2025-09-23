@@ -54,35 +54,6 @@ runs:
         ls -la _site/archive/
       shell: bash
 
-    # - name: Debug before deployment
-    #   run: |
-    #     echo "=== Current working directory ==="
-    #     pwd
-    #     ls -la
-        
-    #     echo "=== Contents of _site (deployment folder) ==="
-    #     ls -la _site/
-        
-    #     echo "=== Contents of _site/archive ==="
-    #     ls -la _site/archive/ || echo "No archive directory"
-        
-    #     echo "=== Contents of tag directory before copy ==="
-    #     ls -la ${{ steps.tag.outputs.tag_name }}/
-        
-    #     echo "=== Verify the copy worked ==="
-    #     ls -la _site/archive/${{ steps.tag.outputs.tag_name }}/ || echo "Tag directory not found in archive"
-        
-    #     echo "=== Total file count ==="
-    #     find _site -type f | wc -l
-    #   shell: bash
-
-    # - name: Check git status before deployment
-    #   run: |
-    #     cd _site
-    #     git status
-    #     git diff --name-status HEAD~1 || echo "No previous commit to compare"
-    #   shell: bash
-      
     - name: Stage changes for deployment
       run: |
         cd _site
@@ -99,14 +70,6 @@ runs:
         cd _site
         git push origin gh-pages
       shell: bash
-
-    # - name: Publish to gh-pages
-    #   uses: JamesIves/github-pages-deploy-action@4.1.0
-    #   with:
-    #     branch: gh-pages
-    #     folder: _site
-    #     single-commit: true
-    #     force: true
 
 inputs:
   pre_render:
