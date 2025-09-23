@@ -61,6 +61,7 @@ runs:
         branch: gh-pages
         folder: _site
         single-commit: true
+        force: true
 
 inputs:
   pre_render:
