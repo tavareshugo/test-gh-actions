@@ -82,6 +82,17 @@ runs:
         git status
         git diff --name-status HEAD~1 || echo "No previous commit to compare"
       shell: bash
+      
+    - name: Stage changes for deployment
+      run: |
+        cd _site
+        git add .
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Add archive version ${{ steps.tag.outputs.tag_name }}" || echo "No changes to commit"
+        echo "Git status after staging:"
+        git status
+      shell: bash
 
     - name: Publish to gh-pages
       uses: JamesIves/github-pages-deploy-action@4.1.0
