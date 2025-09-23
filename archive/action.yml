@@ -76,6 +76,13 @@ runs:
         find _site -type f | wc -l
       shell: bash
 
+    - name: Check git status before deployment
+      run: |
+        cd _site
+        git status
+        git diff --name-status HEAD~1 || echo "No previous commit to compare"
+      shell: bash
+
     - name: Publish to gh-pages
       uses: JamesIves/github-pages-deploy-action@4.1.0
       with:
