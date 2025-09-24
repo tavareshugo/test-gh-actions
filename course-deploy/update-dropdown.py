@@ -174,7 +174,7 @@ def inject_dropdown_into_html(file_path, dropdown_html):
         return False
 
 
-def inject_archive_versions_into_versions_html(file_path, archive_html):
+def inject_archive_versions_into_versions_html(file_path, archive_html, prefix):
     """
     Inject archive versions HTML into versions.html files.
     Looks for the closing </div> of the list-group and inserts before it.
@@ -191,6 +191,14 @@ def inject_archive_versions_into_versions_html(file_path, archive_html):
             # Replace with just the Latest Version item plus our new archive versions
             content = re.sub(
                 latest_pattern, r"\1" + archive_html, content, flags=re.DOTALL
+            )
+
+            # Replace the link in the latest version to point to {prefix}/index.html
+            content = re.sub(
+                r'(<p><a href=")[^"]*(">\s*View Latest Version\s*</a></p>)',
+                r"\1" + f"{prefix}/index.html" + r"\2",
+                content,
+                flags=re.DOTALL,
             )
 
             with open(file_path, "w", encoding="utf-8") as f:
@@ -292,7 +300,9 @@ def main():
             dropdown_success_count += 1
 
         if html_file.endswith("versions.html"):
-            if inject_archive_versions_into_versions_html(html_file, archive_html):
+            if inject_archive_versions_into_versions_html(
+                html_file, archive_html, prefix
+            ):
                 versions_success_count += 1
                 print(f"✓ Updated archive versions in: {html_file}")
 
