@@ -114,7 +114,7 @@ def generate_archive_versions_html(versions, prefix):
 <h5 class="mb-1 anchored">Latest Version</h5>
 <p><small class="text-muted">Current</small></p>
 </div>
-<p><a href="{prefix}/index.html">View Latest Version</a></p>
+<p><a href="/{prefix}/index.html">View Latest Version</a></p>
 </div>
     """
 
