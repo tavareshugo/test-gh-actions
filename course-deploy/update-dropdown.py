@@ -108,7 +108,21 @@ def generate_archive_versions_html(versions, prefix):
     if not versions:
         return ""
 
-    archive_html = ""
+    archive_html = f"""
+<div class="list-group-item list-group-item-action">
+<div class="d-flex w-100 justify-content-between">
+<h5 class="mb-1 anchored">
+Latest Version
+</h5>
+<p><small class="text-muted">Current</small></p>
+</div>
+<p class="mb-1">
+The most up-to-date version of the course materials.
+</p>
+<p><a href="{prefix}/index.html">View Latest Version</a></p>
+</div>
+</div>
+    """
 
     for version in versions:
         try:
@@ -174,40 +188,32 @@ def inject_dropdown_into_html(file_path, dropdown_html):
         return False
 
 
-def inject_archive_versions_into_versions_html(file_path, archive_html, prefix):
+def inject_archive_versions_into_versions_html(file_path, archive_html):
     """
-    Inject archive versions HTML into versions.html files.
-    Looks for the closing </div> of the list-group and inserts before it.
+    Replace the inner HTML of the first <div class="list-group">...</div> with archive_html using regex.
+    Returns True on success, False on failure.
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        with open(file_path, "r", encoding="utf-8") as fh:
+            content = fh.read()
 
-        # Remove any existing archive versions (everything after the "Latest Version" item)
-        # Look for the pattern: Latest Version item followed by archive versions
-        latest_pattern = r'(<div class="list-group-item list-group-item-action">.*?<p><a href="[./]*">View Latest Version</a></p>\s*</div>).*?(?=</div>\s*</div>)'
+        # This pattern looks for a div whose class attribute contains 'list-group'
+        pattern = re.compile(
+            r'(<div\b[^>]*\bclass\s*=\s*"(?:[^"]*\s)?list-group(?:\s[^"]*)?"[^>]*>)(.*?)(</div>)',
+            re.DOTALL | re.IGNORECASE,
+        )
 
-        if re.search(latest_pattern, content, re.DOTALL):
-            # Replace with just the Latest Version item plus our new archive versions
-            content = re.sub(
-                latest_pattern, r"\1" + archive_html, content, flags=re.DOTALL
-            )
+        # Replace only the first occurrence
+        new_content, n = pattern.subn(r"\1" + archive_html + r"\3", content, count=1)
 
-            # Replace the link in the latest version to point to {prefix}/index.html
-            content = re.sub(
-                r'(<p><a href=")[^"]*(">\s*View Latest Version\s*</a></p>)',
-                r"\1" + f"{prefix}/index.html" + r"\2",
-                content,
-                flags=re.DOTALL,
-            )
-
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(content)
-
-            return True
-        else:
-            print(f"⚠ Could not find versions pattern in: {file_path}")
+        if n == 0:
+            print(f'⚠ Could not find <div class="list-group"> in: {file_path}')
             return False
+
+        with open(file_path, "w", encoding="utf-8") as fh:
+            fh.write(new_content)
+
+        return True
 
     except Exception as e:
         print(f"✗ Error updating versions in {file_path}: {e}")
@@ -300,9 +306,7 @@ def main():
             dropdown_success_count += 1
 
         if html_file.endswith("versions.html"):
-            if inject_archive_versions_into_versions_html(
-                html_file, archive_html, prefix
-            ):
+            if inject_archive_versions_into_versions_html(html_file, archive_html):
                 versions_success_count += 1
                 print(f"✓ Updated archive versions in: {html_file}")
 
