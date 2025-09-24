@@ -111,16 +111,10 @@ def generate_archive_versions_html(versions, prefix):
     archive_html = f"""
 <div class="list-group-item list-group-item-action">
 <div class="d-flex w-100 justify-content-between">
-<h5 class="mb-1 anchored">
-Latest Version
-</h5>
+<h5 class="mb-1 anchored">Latest Version</h5>
 <p><small class="text-muted">Current</small></p>
 </div>
-<p class="mb-1">
-The most up-to-date version of the course materials.
-</p>
 <p><a href="{prefix}/index.html">View Latest Version</a></p>
-</div>
 </div>
     """
 
