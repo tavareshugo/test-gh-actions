@@ -1,4 +1,4 @@
-Quarto Book Deployment Action
+# Quarto Book Deployment Action
 
 Render the `main` branch of a Quarto book, merge in any existing archived versions (see [archive action](../archive)), inject the version dropdown into the navbar, and deploy the final site to the `gh-pages` branch.
 

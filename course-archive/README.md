@@ -1,6 +1,6 @@
 # Quarto Book Archive Release Action
 
-This repository provides a GitHub Action to build and archive tagged versions of a Quarto book into the `gh-pages` branch of your repo.
+This action builds and archives tagged versions of a Quarto book into the `gh-pages` branch of your repo.
 
 This action should ideally be paired with the [Quarto Deploy Action](../deploy) to publish the latest version of your book.
 
