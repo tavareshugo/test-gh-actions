@@ -3,8 +3,9 @@ description: "Run `quarto update` for CRIT course extensions."
 runs:
   using: "composite"
   steps:      
+    - uses: quarto-dev/quarto-actions/setup-quarto@v2
+      
     - name: Run extension updates
-      uses: quarto-dev/quarto-actions/setup-quarto@v2
       run: |
         set -euo pipefail
         quarto update --no-prompt mcanouil/quarto-iconify
