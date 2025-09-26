@@ -2,9 +2,10 @@ name: "Quarto Extensions Update"
 description: "Run `quarto update` for CRIT course extensions."
 runs:
   using: "composite"
-  steps:      
-    - uses: quarto-dev/quarto-actions/setup-quarto@v2
-      
+  steps:
+    - name: Setup Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+    
     - name: Run extension updates
       run: |
         set -euo pipefail
