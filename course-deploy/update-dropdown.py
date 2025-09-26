@@ -183,32 +183,59 @@ def inject_dropdown_into_html(file_path, dropdown_html):
 
 def inject_archive_versions_into_versions_html(file_path, archive_html):
     """
-    Replace the content between AUTOMATIC_VERSIONS_START and
-    AUTOMATIC_VERSIONS_END markers with archive_html.
+    Replace the contents of the automatic versions block in versions.html.
 
-    Returns True on success, False if markers not found or on error.
+    Strategy:
+      1. Prefer a sentinel-marker approach: replace the content between
+         <!-- AUTOMATIC_VERSIONS_START --> and <!-- AUTOMATIC_VERSIONS_END -->
+         if present.
+      2. Fallback to replacing the first <div ... class="list-group">...</div>
+         (legacy behaviour).
+
+    Returns True on success, False on failure.
     """
     try:
         with open(file_path, "r", encoding="utf-8") as fh:
             content = fh.read()
 
-        # Match everything between start and end markers
-        pattern = re.compile(
-            r"(<!--\s*AUTOMATIC_VERSIONS_START.*?-->)(.*?)(<!--\s*AUTOMATIC_VERSIONS_END\s*-->)",
+        # 1) Marker-based replacement - on the main branch
+        start_marker = r"<!--\s*AUTOMATIC_VERSIONS_START\s*-->"
+        end_marker = r"<!--\s*AUTOMATIC_VERSIONS_END\s*-->"
+        marker_pattern = re.compile(
+            rf"({start_marker})(.*?)({end_marker})",
             re.DOTALL | re.IGNORECASE,
         )
 
-        if not pattern.search(content):
-            print(f"⚠ Could not find automatic versions markers in: {file_path}")
-            return False
+        if marker_pattern.search(content):
+            new_content = marker_pattern.sub(
+                r"\1\n" + archive_html + r"\3", content, count=1
+            )
+            with open(file_path, "w", encoding="utf-8") as fh:
+                fh.write(new_content)
+            print(f"✓ Replaced automatic versions block (markers) in: {file_path}")
+            return True
 
-        new_content = pattern.sub(r"\1\n" + archive_html + r"\n\3", content, count=1)
+        # 2) Fallback: find the first div with class containing 'list-group'
+        # in the already archived version.html files
+        div_pattern = re.compile(
+            r'(<div\b[^>]*\bclass\s*=\s*"[^"]*\blist-group\b[^"]*"[^>]*>)(.*?)(</div>)',
+            re.DOTALL | re.IGNORECASE,
+        )
 
-        with open(file_path, "w", encoding="utf-8") as fh:
-            fh.write(new_content)
+        new_content, n = div_pattern.subn(
+            r"\1" + archive_html + r"\3", content, count=1
+        )
+        if n > 0:
+            with open(file_path, "w", encoding="utf-8") as fh:
+                fh.write(new_content)
+            print(f'✓ Replaced first <div class="list-group"> block in: {file_path}')
+            return True
 
-        print(f"✓ Updated automatic versions block in: {file_path}")
-        return True
+        # Nothing matched
+        print(
+            f'⚠ Could not find automatic versions markers or a <div class="list-group"> in: {file_path}'
+        )
+        return False
 
     except Exception as e:
         print(f"✗ Error updating versions in {file_path}: {e}")
