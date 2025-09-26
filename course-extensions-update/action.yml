@@ -2,13 +2,14 @@ name: "Quarto Extensions Update"
 description: "Run `quarto update` for CRIT course extensions."
 runs:
   using: "composite"
-  steps:
+  steps:      
     - name: Run extension updates
+      uses: quarto-dev/quarto-actions/setup-quarto@v2
       run: |
         set -euo pipefail
-        quarto update mcanouil/quarto-iconify
-        quarto update quarto-ext/fontawesome
-        quarto update cambiotraining/crit-quarto-ext/callout-exercise
-        quarto update cambiotraining/crit-quarto-ext/crit-format
-        quarto update cambiotraining/crit-quarto-ext/citation-cff-parser
+        quarto update --no-prompt mcanouil/quarto-iconify
+        quarto update --no-prompt quarto-ext/fontawesome
+        quarto update --no-prompt cambiotraining/crit-quarto-ext/callout-exercise
+        quarto update --no-prompt cambiotraining/crit-quarto-ext/crit-format
+        quarto update --no-prompt cambiotraining/crit-quarto-ext/citation-cff-parser
       shell: bash
