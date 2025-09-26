@@ -97,46 +97,45 @@ def detect_current_version_from_path(file_path):
 
 def generate_archive_versions_html(versions, prefix):
     """
-    Generate HTML for archive versions to be injected into versions.html files.
-
-    Args:
-        versions: List of available versions
-
-    Returns:
-        HTML string for archive versions
+    Generate list-group-item HTML for archive versions.
+    Returns a string containing only the <div class="list-group-item ..."> blocks.
     """
     if not versions:
         return ""
 
-    archive_html = f"""
-<div class="list-group-item list-group-item-action">
+    parts = []
+
+    # Latest item
+    parts.append(
+        f"""<div class="list-group-item list-group-item-action">
 <div class="d-flex w-100 justify-content-between">
 <h5 class="mb-1 anchored">Latest Version</h5>
 <p><small class="text-muted">Current</small></p>
 </div>
 <p><a href="/{prefix}/index.html">View Latest Version</a></p>
-</div>
-    """
+</div>"""
+    )
 
+    # Archive items
     for version in versions:
         try:
-            # Parse date for better display
             date_obj = datetime.strptime(version, "%Y.%m.%d")
             formatted_date = date_obj.strftime("%B %d, %Y")
         except ValueError:
             formatted_date = version
 
-        archive_html += f"""
-
-<div class="list-group-item list-group-item-action">
+        parts.append(
+            f"""<div class="list-group-item list-group-item-action">
 <div class="d-flex w-100 justify-content-between">
 <h5 class="mb-1 anchored">Version {version}</h5>
 <p><small class="text-muted">{formatted_date}</small></p>
 </div>
 <p><a href="/{prefix}/archive/{version}/index.html">View Version {version}</a></p>
 </div>"""
+        )
 
-    return archive_html
+    # Join with a blank line between items for readable HTML diffs
+    return "\n\n".join(parts)
 
 
 def inject_dropdown_into_html(file_path, dropdown_html):
@@ -184,29 +183,31 @@ def inject_dropdown_into_html(file_path, dropdown_html):
 
 def inject_archive_versions_into_versions_html(file_path, archive_html):
     """
-    Replace the inner HTML of the first <div class="list-group">...</div> with archive_html using regex.
-    Returns True on success, False on failure.
+    Replace the content between AUTOMATIC_VERSIONS_START and
+    AUTOMATIC_VERSIONS_END markers with archive_html.
+
+    Returns True on success, False if markers not found or on error.
     """
     try:
         with open(file_path, "r", encoding="utf-8") as fh:
             content = fh.read()
 
-        # This pattern looks for a div whose class attribute contains 'list-group'
+        # Match everything between start and end markers
         pattern = re.compile(
-            r'(<div\b[^>]*\bclass\s*=\s*"(?:[^"]*\s)?list-group(?:\s[^"]*)?"[^>]*>)(.*?)(</div>)',
+            r"(<!--\s*AUTOMATIC_VERSIONS_START.*?-->)(.*?)(<!--\s*AUTOMATIC_VERSIONS_END\s*-->)",
             re.DOTALL | re.IGNORECASE,
         )
 
-        # Replace only the first occurrence
-        new_content, n = pattern.subn(r"\1" + archive_html + r"\3", content, count=1)
-
-        if n == 0:
-            print(f'⚠ Could not find <div class="list-group"> in: {file_path}')
+        if not pattern.search(content):
+            print(f"⚠ Could not find automatic versions markers in: {file_path}")
             return False
+
+        new_content = pattern.sub(r"\1\n" + archive_html + r"\n\3", content, count=1)
 
         with open(file_path, "w", encoding="utf-8") as fh:
             fh.write(new_content)
 
+        print(f"✓ Updated automatic versions block in: {file_path}")
         return True
 
     except Exception as e:
